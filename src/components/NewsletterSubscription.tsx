@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle, Bell, Users, TrendingUp } from 'lucide-react';
-import { EmailService, validateEmailJSConfig } from '../utils/emailService';
-import { SubscriberStorage } from '../utils/subscriberStorage';
+import { EmailService } from '../utils/emailService';
 
 interface NewsletterSubscriptionProps {
   variant?: 'default' | 'compact' | 'footer';
@@ -26,46 +25,25 @@ const NewsletterSubscription: React.FC<NewsletterSubscriptionProps> = ({
       return;
     }
 
-    // Check if EmailJS is configured
-    if (!validateEmailJSConfig()) {
-      setErrorMessage('Email service is not configured yet. Please update your EmailJS credentials in src/utils/emailService.ts');
-      setSubmitStatus('error');
-      return;
-    }
 
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
 
     try {
-      // Store subscriber locally
-      const subscriberAdded = SubscriberStorage.addSubscriber({
-        email: email.trim(),
-        preferences: {
-          productUpdates: true,
-          industryNews: true,
-          technicalPapers: true,
-          events: true
-        }
-      });
+      const result = await EmailService.handleNewsletterSubscription(email.trim());
       
-      if (!subscriberAdded) {
-        throw new Error('Failed to store subscriber information');
+      if (result.alreadySubscribed) {
+        setErrorMessage('You are already subscribed to our newsletter!');
+        setSubmitStatus('error');
+      } else if (result.confirmationSent) {
+        setSubmitStatus('success');
+        setEmail('');
+        console.log('Newsletter subscription successful for:', email.trim());
+      } else {
+        throw new Error('Failed to process subscription. Please try again.');
       }
 
-      // Send welcome email to subscriber
-      const welcomeEmailSent = await EmailService.sendWelcomeEmail(email.trim());
-      
-      if (!welcomeEmailSent) {
-        throw new Error('Failed to send welcome email. Please check your EmailJS configuration.');
-      }
-
-      // Success
-      setSubmitStatus('success');
-      setEmail('');
-
-      console.log('Subscription successful for:', email.trim());
-      console.log('Total subscribers:', SubscriberStorage.getSubscriberCount());
     } catch (error) {
       console.error('Subscription error:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Failed to subscribe. Please try again.');

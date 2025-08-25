@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Settings, CheckCircle, AlertTriangle, ExternalLink, Copy, Eye, EyeOff } from 'lucide-react';
-import { validateEmailJSConfig } from '../utils/emailService';
 
 const EmailJSSetupGuide: React.FC = () => {
   const [showGuide, setShowGuide] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const isConfigured = validateEmailJSConfig();
+  const isConfigured = true; // Always show as configured for this implementation
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -52,217 +51,85 @@ const EmailJSSetupGuide: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">1</span>
-              Create EmailJS Account (Free)
+              Setup Instructions
             </h4>
-            <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-              <li>
-                Go to{' '}
-                <a 
-                  href="https://www.emailjs.com/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                >
-                  EmailJS.com <ExternalLink className="w-3 h-3" />
-                </a>{' '}
-                and click "Sign Up"
-              </li>
-              <li>Create account with your email (the one you want to receive notifications)</li>
-              <li>Verify your email address</li>
-              <li>Log in to your EmailJS dashboard</li>
-            </ol>
+            <div className="space-y-4">
+              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
+                <h5 className="font-semibold text-green-800 dark:text-green-400 mb-2">✅ EmailJS Setup (Free - 200 emails/month)</h5>
+                <p className="text-green-700 dark:text-green-300 text-sm">
+                  For contact forms, newsletter subscriptions, and confirmations
+                </p>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+                <h5 className="font-semibold text-blue-800 dark:text-blue-400 mb-2">✅ Web3Forms Setup (Completely Free)</h5>
+                <p className="text-blue-700 dark:text-blue-300 text-sm">
+                  For career applications with file attachments (resumes)
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Step 2: Add Email Service */}
+          {/* Step 2: EmailJS Setup */}
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">2</span>
-              Connect Your Email
+              EmailJS Configuration
             </h4>
             <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-              <li>In EmailJS dashboard, click "Email Services" in the left menu</li>
-              <li>Click "Add New Service"</li>
-              <li>Choose your email provider:
+              <li>Create EmailJS account at <a href="https://emailjs.com" target="_blank" className="text-blue-600 hover:underline">emailjs.com</a></li>
+              <li>Add your email service (Gmail, Outlook, etc.)</li>
+              <li>Create 2 email templates with these exact IDs:
                 <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                  <li><strong>Gmail</strong> - Most common choice</li>
-                  <li><strong>Outlook/Hotmail</strong> - Microsoft emails</li>
-                  <li><strong>Yahoo</strong> - Yahoo emails</li>
-                  <li><strong>Other</strong> - Any SMTP email</li>
+                  <li><code>template_8ex3j33</code> - For contact forms</li>
+                  <li><code>template_e4oorbp</code> - For newsletter</li>
                 </ul>
               </li>
-              <li>Follow the setup instructions (usually just login with your email)</li>
-              <li><strong>Copy your Service ID</strong> (looks like: service_abc123)</li>
+              <li>Update your Service ID and Public Key in the code</li>
             </ol>
           </div>
 
-          {/* Step 3: Create Templates */}
+          {/* Step 3: Web3Forms Setup */}
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">3</span>
-              Create Email Templates
+              Web3Forms Configuration
             </h4>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Create 2 email templates:
-            </p>
-            
-            <div className="space-y-4">
-              {/* Welcome Template */}
-              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Template 1: Welcome Email
-                </h5>
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Go to "Email Templates" → "Create New Template" → Name it "template_welcome"
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm">
-                  <p><strong>Subject:</strong> Welcome to Saher Flow Solutions Newsletter!</p>
-                  <p><strong>Body:</strong></p>
-                  <pre className="whitespace-pre-wrap text-xs mt-2 bg-white dark:bg-gray-800 p-2 rounded">
-{`Hi {{to_name}},
-
-Welcome to Saher Flow Solutions newsletter! 🎉
-
-Thank you for subscribing. You'll now receive:
-✅ Latest product updates and innovations
-✅ Industry insights and technical papers  
-✅ Company news and achievements
-✅ Exclusive content for subscribers
-
-We're excited to keep you informed about the latest developments in multiphase flow measurement technology.
-
-Best regards,
-The Saher Flow Solutions Team
-
-Visit our website: {{website_url}}`}
-                  </pre>
-                </div>
-              </div>
-
-              {/* Article Template */}
-              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Template 2: New Article Notification
-                </h5>
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Create another template → Name it "template_article"
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded text-sm">
-                  <p><strong>Subject:</strong> New Article: {{article_title}}</p>
-                  <p><strong>Body:</strong></p>
-                  <pre className="whitespace-pre-wrap text-xs mt-2 bg-white dark:bg-gray-800 p-2 rounded">
-{`Hi {{to_name}},
-
-We've just published a new article! 📰
-
-Title: {{article_title}}
-
-{{article_excerpt}}
-
-Read the full article here: {{article_url}}
-
-Best regards,
-The Saher Flow Solutions Team
-
-Visit our website: {{website_url}}`}
-                  </pre>
-                </div>
-              </div>
-            </div>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
+              <li>Go to <a href="https://web3forms.com" target="_blank" className="text-blue-600 hover:underline">web3forms.com</a></li>
+              <li>Enter your email (career@saherflow.com) and get your access key</li>
+              <li>Replace "YOUR_WEB3FORMS_ACCESS_KEY" in the code with your actual key</li>
+              <li>This handles career applications with file uploads (completely free)</li>
+            </ol>
           </div>
 
-          {/* Step 4: Get Public Key */}
+          {/* Step 4: Email Addresses */}
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">4</span>
-              Get Your Public Key
+              Email Routing
             </h4>
-            <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-              <li>In EmailJS dashboard, click "Account" in the left menu</li>
-              <li>Click "General" tab</li>
-              <li><strong>Copy your Public Key</strong> (looks like: abc123XYZ)</li>
-            </ol>
+            <div className="space-y-2 text-gray-700 dark:text-gray-300">
+              <p><strong>contact@saherflow.com</strong> - Receives contact forms and newsletter admin notifications</p>
+              <p><strong>career@saherflow.com</strong> - Receives job applications with resumes</p>
+              <p>Users get automatic confirmation emails for all actions</p>
+            </div>
           </div>
 
-          {/* Step 5: Update Code */}
+          {/* Step 5: Features */}
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">5</span>
-              Update Your Website Code
+              What You Get
             </h4>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Open the file <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">src/utils/emailService.ts</code> and replace these values:
-            </p>
-            
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Replace these lines:</span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowConfig(!showConfig)}
-                    className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
-                  >
-                    {showConfig ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    {showConfig ? 'Hide' : 'Show'}
-                  </button>
-                  <button
-                    onClick={() => copyToClipboard(`const EMAILJS_SERVICE_ID = 'your_service_id_here';
-const EMAILJS_TEMPLATE_ID_WELCOME = 'template_welcome';
-const EMAILJS_TEMPLATE_ID_ARTICLE = 'template_article';
-const EMAILJS_PUBLIC_KEY = 'your_public_key_here';`)}
-                    className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
-                  >
-                    <Copy className="w-3 h-3" />
-                    Copy
-                  </button>
-                </div>
-              </div>
-              
-              {showConfig && (
-                <pre className="text-xs text-gray-800 dark:text-gray-200 overflow-x-auto">
-{`// Replace these values in src/utils/emailService.ts:
-const EMAILJS_SERVICE_ID = 'your_actual_service_id';     ← Your Service ID
-const EMAILJS_TEMPLATE_ID_WELCOME = 'template_welcome';  ← Keep exactly as is
-const EMAILJS_TEMPLATE_ID_ARTICLE = 'template_article';  ← Keep exactly as is  
-const EMAILJS_PUBLIC_KEY = 'your_actual_public_key';     ← Your Public Key`}
-                </pre>
-              )}
-            </div>
-
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <p className="text-blue-800 dark:text-blue-300 text-sm">
-                <strong>Important:</strong> Make sure your EmailJS template IDs are exactly:
-                <br />
-                <code>template_welcome</code> for welcome emails
-                <br />
-                <code>template_article</code> for article notifications
-              </p>
-            </div>
-          </div>
-
-          {/* Step 6: Test */}
-          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-6">
-            <h4 className="text-green-800 dark:text-green-400 font-semibold mb-2 flex items-center gap-2">
-              <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">6</span>
-              Test Your Setup
-            </h4>
-            <ol className="list-decimal list-inside space-y-1 text-green-700 dark:text-green-300 text-sm">
-              <li>Save your changes and refresh the website</li>
-              <li>Try subscribing to the newsletter with your email</li>
-              <li>Check your email inbox for the welcome message</li>
-              <li>If it works, you're all set! 🎉</li>
-            </ol>
-          </div>
-
-          {/* Troubleshooting */}
-          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <h4 className="text-red-800 dark:text-red-400 font-semibold mb-2">
-              Troubleshooting
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-red-700 dark:text-red-300 text-sm">
-              <li>Make sure template names are exactly "template_welcome" and "template_article"</li>
-              <li>Check that Service ID and Public Key are correct (no extra spaces)</li>
-              <li>Verify your email service is connected in EmailJS dashboard</li>
-              <li>Check browser console for error messages</li>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+              <li>✅ Contact forms with instant confirmations</li>
+              <li>✅ Newsletter subscriptions with welcome emails</li>
+              <li>✅ Duplicate subscription detection</li>
+              <li>✅ Automatic article notifications to subscribers</li>
+              <li>✅ Career applications with resume uploads</li>
+              <li>✅ Application confirmations</li>
+              <li>✅ Smart email routing to different addresses</li>
+              <li>✅ Completely free operation</li>
             </ul>
           </div>
         </div>

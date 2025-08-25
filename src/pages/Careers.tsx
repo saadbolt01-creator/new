@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { useForm, ValidationError } from '@formspree/react';
 import { MapPin, Briefcase, Clock, Users, Award, Zap } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
+import { EmailService } from '../utils/emailService';
 
 const Careers: React.FC = () => {
-  const [state, handleSubmit] = useForm("mnnzrdzo");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [applicationData, setApplicationData] = useState({
     name: '',
@@ -142,25 +144,60 @@ const Careers: React.FC = () => {
   const submitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Submit to Formspree using handleSubmit directly
-    await handleSubmit(e);
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    
+    try {
+      const result = await EmailService.handleCareerApplication(applicationData);
+      
+      if (result.adminSent && result.userSent) {
+        setSubmitStatus('success');
+        setStatusMessage('Application submitted successfully! You should receive a confirmation email shortly.');
+        setApplicationData({ 
+          name: '', 
+          email: '', 
+          position: '', 
+          coverLetter: '', 
+          resume: null,
+          phone: '',
+          experience: '',
+          location: ''
+        });
+      } else if (result.adminSent) {
+        setSubmitStatus('success');
+        setStatusMessage('Application submitted successfully! (Confirmation email may be delayed)');
+        setApplicationData({ 
+          name: '', 
+          email: '', 
+          position: '', 
+          coverLetter: '', 
+          resume: null,
+          phone: '',
+          experience: '',
+          location: ''
+        });
+      } else {
+        setSubmitStatus('error');
+        setStatusMessage('Failed to submit application. Please try again or contact us directly.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setStatusMessage('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Reset form after successful submission
+  // Reset status after 10 seconds
   React.useEffect(() => {
-    if (state.succeeded) {
-      setApplicationData({ 
-        name: '', 
-        email: '', 
-        position: '', 
-        coverLetter: '', 
-        resume: null,
-        phone: '',
-        experience: '',
-        location: ''
-      });
+    if (submitStatus !== 'idle') {
+      const timer = setTimeout(() => {
+        setSubmitStatus('idle');
+        setStatusMessage('');
+      }, 10000);
+      return () => clearTimeout(timer);
     }
-  }, [state.succeeded]);
+  }, [submitStatus]);
 
   return (
     <>
@@ -480,12 +517,6 @@ const Careers: React.FC = () => {
                       placeholder="Your full name"
                       required
                     />
-                    <ValidationError 
-                      prefix="Name" 
-                      field="name"
-                      errors={state.errors}
-                      className="text-red-500 text-sm mt-1"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -499,12 +530,6 @@ const Careers: React.FC = () => {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="your.email@company.com"
                       required
-                    />
-                    <ValidationError 
-                      prefix="Email" 
-                      field="email"
-                      errors={state.errors}
-                      className="text-red-500 text-sm mt-1"
                     />
                   </div>
                 </div>
@@ -522,12 +547,6 @@ const Careers: React.FC = () => {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="+966 XX XXX XXXX"
                     />
-                    <ValidationError 
-                      prefix="Phone" 
-                      field="phone"
-                      errors={state.errors}
-                      className="text-red-500 text-sm mt-1"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -540,12 +559,6 @@ const Careers: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="e.g., 5+ years"
-                    />
-                    <ValidationError 
-                      prefix="Experience" 
-                      field="experience"
-                      errors={state.errors}
-                      className="text-red-500 text-sm mt-1"
                     />
                   </div>
                 </div>
@@ -574,12 +587,6 @@ const Careers: React.FC = () => {
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="City, Country"
                   />
-                  <ValidationError 
-                    prefix="Location" 
-                    field="location"
-                    errors={state.errors}
-                    className="text-red-500 text-sm mt-1"
-                  />
                 </div>
 
                 <div>
@@ -595,12 +602,6 @@ const Careers: React.FC = () => {
                     placeholder="Tell us why you're perfect for this role and your interest in working in Saudi Arabia..."
                     required
                   />
-                  <ValidationError 
-                    prefix="Cover Letter" 
-                    field="coverLetter"
-                    errors={state.errors}
-                    className="text-red-500 text-sm mt-1"
-                  />
                 </div>
 
                 <div>
@@ -614,12 +615,6 @@ const Careers: React.FC = () => {
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                   />
-                  <ValidationError 
-                    prefix="Resume" 
-                    field="resume"
-                    errors={state.errors}
-                    className="text-red-500 text-sm mt-1"
-                  />
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Accepted formats: PDF, DOC, DOCX (Max 10MB)
                   </p>
@@ -628,10 +623,10 @@ const Careers: React.FC = () => {
                 <div className="flex gap-4 pt-4">
                   <button 
                     type="submit"
-                    disabled={state.submitting}
+                    disabled={isSubmitting}
                     className="flex-1 bg-navy-900 dark:bg-yellow-500 text-white dark:text-navy-900 py-4 rounded-lg font-semibold hover:bg-navy-800 dark:hover:bg-yellow-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {state.submitting ? 'Submitting...' : 'Submit Application'}
+                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
                   </button>
                   <button 
                     type="button"
@@ -651,18 +646,18 @@ const Careers: React.FC = () => {
                   </button>
                 </div>
                 
-                {state.succeeded && (
+                {submitStatus === 'success' && (
                   <div className="bg-green-100 dark:bg-green-900/30 border border-green-500/30 rounded-lg p-4 text-center">
                     <p className="text-green-800 dark:text-green-400 font-medium">
-                      ✅ Application submitted successfully! We'll review your application and get back to you within 5 business days.
+                      ✅ {statusMessage}
                     </p>
                   </div>
                 )}
                 
-                {state.errors && state.errors.length > 0 && (
+                {submitStatus === 'error' && (
                   <div className="bg-red-100 dark:bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-center">
                     <p className="text-red-800 dark:text-red-400 font-medium">
-                      ❌ There was an error submitting your application. Please try again.
+                      ❌ {statusMessage}
                     </p>
                   </div>
                 )}
